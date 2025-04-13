@@ -31,6 +31,6 @@ public class FakeDataService {
             }
             fakeDataDTOList.add(new FakeDataDTO(firstName, lastName, birthDate, extrasMap));
         }
-        return fakeDataDTOList;
+        return fakeDataDTOList.isEmpty() ? new ArrayList<>() : fakeDataDTOList;
     }
 }

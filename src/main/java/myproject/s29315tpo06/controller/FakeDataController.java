@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -19,7 +20,8 @@ public class FakeDataController {
     }
 
     @GetMapping("/")
-    public String formPage() {
+    public String formPage(Model model) {
+        model.addAttribute("data", null);
         return "generator";
     }
 
@@ -36,7 +38,14 @@ public class FakeDataController {
         }
 
         List<?> result = fakeDataService.generateFakeData(count, language, fields == null ? List.of() : fields);
-        model.addAttribute("data", result);
+
+        if(result == null || result.isEmpty()) {
+            model.addAttribute("error", "No data was generated. Please try again."); // ✅ correct place for error
+        } else {
+            model.addAttribute("data", result); // ✅ only when result has data
+        }
+
         return "generator";
     }
+
 }
