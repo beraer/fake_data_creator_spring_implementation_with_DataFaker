@@ -8,6 +8,13 @@ public class FakeDataDTO {
     private String birthDate;
     private Map<String, String> additionalFields;
 
+    public FakeDataDTO(String firstName, String lastName, String birthDate, Map<String, String> additionalFields) {
+        this.firstName = firstName;
+        this.additionalFields = additionalFields;
+        this.lastName = lastName;
+        this.birthDate = birthDate;
+    }
+
     public String getFirstName() {
         return firstName;
     }
