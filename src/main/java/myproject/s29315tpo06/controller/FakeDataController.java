@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class FakeDataController {
@@ -48,7 +49,9 @@ public class FakeDataController {
         } else {
             model.addAttribute("data", result);
 
-            // Add data as JSON string for JavaScript processing
+            Map<String, String> localizedHeaders = getLocalizedHeaders(language);
+            model.addAttribute("headers", localizedHeaders);
+
             try {
                 String jsonData = objectMapper.writeValueAsString(result);
                 model.addAttribute("jsonData", jsonData);
@@ -59,4 +62,43 @@ public class FakeDataController {
 
         return "generator";
     }
+
+    private Map<String, String> getLocalizedHeaders(String lang) {
+        return switch (lang) {
+            case "es" -> Map.of(
+                    "firstName", "Nombre",
+                    "lastName", "Apellido",
+                    "birthDate", "Fecha de Nacimiento",
+                    "address", "Dirección",
+                    "university", "Universidad",
+                    "country", "País",
+                    "phone", "Teléfono",
+                    "email", "Correo electrónico",
+                    "job", "Trabajo"
+            );
+            case "fr" -> Map.of(
+                    "firstName", "Prénom",
+                    "lastName", "Nom",
+                    "birthDate", "Date de Naissance",
+                    "address", "Adresse",
+                    "university", "Université",
+                    "country", "Pays",
+                    "phone", "Téléphone",
+                    "email", "Courriel",
+                    "job", "Emploi"
+            );
+            default -> Map.of(
+                    "firstName", "First Name",
+                    "lastName", "Last Name",
+                    "birthDate", "Date of Birth",
+                    "address", "Address",
+                    "university", "University",
+                    "country", "Country",
+                    "phone", "Phone",
+                    "email", "Email",
+                    "job", "Job"
+            );
+        };
+    }
+
 }

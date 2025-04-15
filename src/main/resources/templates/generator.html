@@ -171,6 +171,7 @@
                 grid-template-columns: 1fr 1fr;
             }
         }
+
     </style>
 </head>
 <body>
@@ -187,7 +188,7 @@
 
             <div class="form-group">
                 <label for="language">Language:</label>
-                <select id="language" name="language">
+                <select id="language" name="language" style="color: var(--text); background-color: var(--card-bg); border: 1px solid var(--border);">
                     <option value="en">English</option>
                     <option value="pl">Polish</option>
                     <option value="fr">French</option>
@@ -249,10 +250,11 @@
             <table>
                 <thead>
                 <tr>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Date of Birth</th>
-                    <th th:each="e : ${data[0].additionalFields.keySet()}" th:text="${e}"></th>
+                    <th th:text="${headers != null ? headers.get('firstName') : 'First Name'}">First Name</th>
+                    <th th:text="${headers != null ? headers.get('lastName') : 'Last Name'}">Last Name</th>
+                    <th th:text="${headers != null ? headers.get('birthDate') : 'Date of Birth'}">Date of Birth</th>
+                    <th th:each="e : ${data[0].additionalFields.keySet()}"
+                        th:text="${headers != null ? headers.get(e) : e}"></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -268,8 +270,10 @@
     </div>
 </div>
 
-<script th:if="${data != null and #lists.size(data) > 0}">
-    const fakeData = /*[[${data}]]*/ [];
+<script th:if="${data != null and #lists.size(data) > 0}" th:inline="javascript">
+    const fakeData = /*[[${jsonData}]]*/ '[]';
+    const parsedData = JSON.parse(fakeData);
+    const headers = /*[[${headers}]]*/ {};
 
     function downloadFile(content, fileName, contentType) {
         const a = document.createElement("a");
@@ -280,15 +284,21 @@
     }
 
     function convertToCSV(data) {
-        const headers = ['First Name', 'Last Name', 'Date of Birth'];
+        const headerNames = ['firstName', 'lastName', 'birthDate'];
+        const headerLabels = [
+            headers['firstName'] || 'First Name',
+            headers['lastName'] || 'Last Name',
+            headers['birthDate'] || 'Date of Birth'
+        ];
 
-        // Add all possible additional fields
+
         if (data.length > 0 && data[0].additionalFields) {
             Object.keys(data[0].additionalFields).forEach(key => {
-                headers.push(key);
+                headerNames.push(key);
+                headerLabels.push(headers[key] || key);
             });
         }
-        let csvContent = headers.join(',') + '\n';
+        let csvContent = headerLabels.join(',') + '\n';
 
         data.forEach(person => {
             const row = [
@@ -296,7 +306,9 @@
                 `"${person.lastName}"`,
                 `"${person.birthDate}"`
             ];
-            headers.slice(3).forEach(header => {
+
+
+            headerNames.slice(3).forEach(header => {
                 const value = person.additionalFields[header] || '';
                 row.push(`"${value}"`);
             });
@@ -307,14 +319,13 @@
         return csvContent;
     }
 
-    // Download handlers
     document.getElementById('downloadCsv').addEventListener('click', function() {
-        const csvContent = convertToCSV(fakeData);
+        const csvContent = convertToCSV(parsedData);
         downloadFile(csvContent, 'fake-data.csv', 'text/csv');
     });
 
     document.getElementById('downloadJson').addEventListener('click', function() {
-        const jsonContent = JSON.stringify(fakeData, null, 2);
+        const jsonContent = JSON.stringify(parsedData, null, 2);
         downloadFile(jsonContent, 'fake-data.json', 'application/json');
     });
 </script>
