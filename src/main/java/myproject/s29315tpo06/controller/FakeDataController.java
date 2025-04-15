@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import myproject.s29315tpo06.dto.FakeDataDTO;
 import myproject.s29315tpo06.service.FakeDataService;
+import myproject.s29315tpo06.service.LocalizedHeaderService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,10 +19,12 @@ public class FakeDataController {
 
     private final FakeDataService fakeDataService;
     private final ObjectMapper objectMapper;
+    private final LocalizedHeaderService localizedHeaderService;
 
-    public FakeDataController(FakeDataService fakeDataService, ObjectMapper objectMapper) {
+    public FakeDataController(FakeDataService fakeDataService, ObjectMapper objectMapper, LocalizedHeaderService localizedHeaderService) {
         this.fakeDataService = fakeDataService;
         this.objectMapper = objectMapper;
+        this.localizedHeaderService = localizedHeaderService;
     }
 
     @GetMapping("/")
@@ -49,7 +52,7 @@ public class FakeDataController {
         } else {
             model.addAttribute("data", result);
 
-            Map<String, String> localizedHeaders = getLocalizedHeaders(language);
+            Map<String, String> localizedHeaders = localizedHeaderService.getLocalizedHeaders(language);
             model.addAttribute("headers", localizedHeaders);
 
             try {
@@ -62,43 +65,4 @@ public class FakeDataController {
 
         return "generator";
     }
-
-    private Map<String, String> getLocalizedHeaders(String lang) {
-        return switch (lang) {
-            case "es" -> Map.of(
-                    "firstName", "Nombre",
-                    "lastName", "Apellido",
-                    "birthDate", "Fecha de Nacimiento",
-                    "address", "Dirección",
-                    "university", "Universidad",
-                    "country", "País",
-                    "phone", "Teléfono",
-                    "email", "Correo electrónico",
-                    "job", "Trabajo"
-            );
-            case "fr" -> Map.of(
-                    "firstName", "Prénom",
-                    "lastName", "Nom",
-                    "birthDate", "Date de Naissance",
-                    "address", "Adresse",
-                    "university", "Université",
-                    "country", "Pays",
-                    "phone", "Téléphone",
-                    "email", "Courriel",
-                    "job", "Emploi"
-            );
-            default -> Map.of(
-                    "firstName", "First Name",
-                    "lastName", "Last Name",
-                    "birthDate", "Date of Birth",
-                    "address", "Address",
-                    "university", "University",
-                    "country", "Country",
-                    "phone", "Phone",
-                    "email", "Email",
-                    "job", "Job"
-            );
-        };
-    }
-
 }
